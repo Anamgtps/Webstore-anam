@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anam Store — Kasir / Catalog</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --text:#e6eef8; --muted:#9fb0d6; --accent:#7dd3fc;
+      --btn:#07b3ff; --danger:#ff6b6b;
+    }
+    [data-theme="light"]{
+      --bg:#f2f8ff; --card:#ffffff; --text:#0b1220; --muted:#556b88; --accent:#0ea5e9;
+      --btn:#0284c7; --danger:#e11d48;
+    }
+
+    *{box-sizing:border-box;font-family:Inter, Poppins, system-ui, Arial;}
+
+/* layout */
+    body{
+      margin:0; min-height:100vh; background:linear-gradient(135deg,var(--accent), rgba(0,0,0,0.05));
+      color:var(--text); display:flex; align-items:flex-start; justify-content:center; padding:28px;
+      background-color:var(--bg);
+    }
+
+    .app {
+      width:100%; max-width:900px; background:var(--card); border-radius:14px; padding:18px;
+      box-shadow:0 10px 30px rgba(2,6,23,0.6);
+    }
+
+    header.app-header{ display:flex; gap:16px; align-items:center; justify-content:space-between; }
+    .profile { display:flex; gap:14px; align-items:center; }
+    .avatar{ width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid #ffcc00; }
+    .title { line-height:1; }
+    .title h1{ margin:0; font-size:24px; color:var(--text); text-align: center; }
+    .title p{ margin:2px 0 0; color:var(--muted); font-size:13px; }
+
+    .controls { display:flex; gap:8px; align-items:center; }
+    .theme-toggle { padding:8px 10px; border-radius:8px; background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.06); cursor:pointer; }
+    .help { font-size:13px; color:var(--muted); }
+
+    /* grid */
+    .grid { display:grid; grid-template-columns: 1fr 360px; gap:18px; margin-top:18px; }
+    @media (max-width:880px){ .grid{ grid-template-columns:1fr; } }
+
+    /* left (catalog) */
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:14px; border-radius:12px; }
+    .category-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .cat-btn {
+      background:linear-gradient(90deg,var(--btn), #66d9ff); color:#052033; border:none; padding:10px 12px; border-radius:10px;
+      cursor:pointer; font-weight:600; box-shadow:0 6px 18px rgba(7,179,255,0.14);
+    }
+    .cat-btn.outline{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04); box-shadow:none; }
+
+    .store-title { margin:8px 0 12px; color:var(--text); font-weight:700; }
+    .items { display:grid; gap:10px; }
+
+    .item {
+      display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px; border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .item .left { text-align:left;}
+    .item .name { font-weight:700; color:var(--text); }
+    .item .sub { color:var(--muted); font-size:13px; margin-top:4px; }
+    .item .right { display:flex; gap:8px; align-items:center; }
+    .price { font-weight:800; color:var(--accent); }
+    .buy-btn { padding:8px 12px; border-radius:10px; border:none; cursor:pointer; background:var(--btn); color:#042331; font-weight:700; }
+
+    /* right (payment/info) */
+    .sidebar { padding:14px; border-radius:12px; background:linear-gradient(180deg, rgba(0,0,0,0.04), transparent); }
+    .box { background:rgba(255,255,255,0.02); padding:12px; border-radius:10px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.02); }
+    .box h3 { margin:0 0 8px; font-size:16px; color:var(--text); }
+    .muted { color:var(--muted); font-size:13px; }
+
+    .pay-numbers { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .pay-numbers .row { display:flex; justify-content:space-between; align-items:center; padding:8px; border-radius:8px; background:linear-gradient(90deg, rgba(255,255,255,0.015), transparent); }
+    .pay-numbers .row b { color:var(--text); }
+    .confirm-row { display:flex; gap:8px; margin-top:12px; }
+
+    .confirm-btn { flex:1; padding:10px; border-radius:10px; border:none; font-weight:700; cursor:pointer; }
+    .tg { background:#0088cc; color:white; }
+    .wa { background:#25D366; color:#052331; }
+
+    .link { color:var(--accent); text-decoration:none; font-weight:700; }
+    
+    .payment-links {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .payment-link-btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--btn);
+      color: #052033;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    footer.note { margin-top:12px; color:var(--muted); font-size:13px; text-align:center; }
+
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="app">
+    <header class="app-header">
+      <div class="profile">
+        <img class="avatar" id="profileImg" src="anam.png" alt="Anam Profile (ganti anam.png)">
+        <div class="title">
+          <h1>✨ Anam Store ✨</h1>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="help muted">Theme</div>
+        <button class="theme-toggle" id="themeToggle">Dark / Light</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: CATALOG -->
+      <div class="panel">
+        <div class="category-row">
+          <button class="cat-btn" onclick="showStore('promote')">🚀 Promote</button>
+          <button class="cat-btn" onclick="showStore('suntik')">💉 Suntik Sosmed</button>
+          <button class="cat-btn" onclick="showStore('panel')">🖥 Panel Ptyrodactyl</button>
+        </div>
+
+        <!-- STORE: Promote -->
+        <div id="promote" class="store">
+          <div class="store-title">🔊 Open Promote YT from AnamGTPS</div>
+          <div class="items" id="promoteItems">
+            <!-- Items inserted by JS -->
+          </div>
+          <div style="margin-top:10px;" class="muted">Payment: Dana • Gopay • Qris</div>
+          <div class="payment-links">
+            <a href="https://discord.gg/xcWg2UUV9W" target="_blank" class="payment-link-btn">Discord</a>
+            <a href="https://chat.whatsapp.com/FPAmgV8sXDU84dtOXGMvR0?mode=ems_copy_c" target="_blank" class="payment-link-btn">WhatsApp Grup</a>
+            <a href="https://whatsapp.com/channel/0029Vb66mMLICVfonuem5005" target="_blank" class="payment-link-btn">WhatsApp Channel</a>
+          </div>
+        </div>
+
+        <!-- STORE: Suntik Sosmed -->
+        <div id="suntik" class="store" style="display:none;">
+          <div class="store-title">💉 Suntik Sosmed — Anam Shop</div>
+          <div class="items" id="suntikItems"></div>
+          <div style="margin-top:8px;" class="muted">HANYA MEMBUTUHKAN LINK / USN</div>
+        </div>
+
+        <!-- STORE: Panel -->
+        <div id="panel" class="store" style="display:none;">
+          <div class="store-title">🖥 Panel Ptyrodactyl</div>
+          <div class="items" id="panelItems"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIDEBAR / PAYMENT -->
+      <aside class="sidebar">
+        <div class="box">
+          <h3>🧾 Pesanan</h3>
+          <div id="orderDetail" class="muted">Belum ada pesanan — pilih produk lalu tekan <b>Beli</b>.</div>
+        </div>
+
+        <div class="box">
+          <h3>💳 Payment</h3>
+          <div class="muted">Silakan transfer / bayar ke:</div>
+          <div class="pay-numbers">
+            <div class="row"><div>• DANA</div><div><b id="danaNum">082121351723</b></div></div>
+            <div class="row"><div>• GO-PAY</div><div><b id="gopayNum">082121351723</b></div></div>
+            <div class="row"><div>• QRIS</div><div class="muted">Scan & bayar via QRIS</div></div>
+          </div>
+
+          <div class="confirm-row">
+            <button class="confirm-btn tg" id="confirmTelegram">Telegram</button>
+            <button class="confirm-btn wa" id="confirmWhatsapp">WhatsApp</button>
+          </div>
+
+          <div style="margin-top:10px;" class="muted">Setelah bayar, tekan konfirmasi untuk mengirim pesan otomatis berisi detail pesanan.</div>
+        </div>
+
+        <div class="box">
+          <h3>Info & Kontak</h3>
+          <div class="muted">Admin: <a class="link" href="https://wa.me/+6285704934482" target="_blank">Admin (WA)</a></div>
+          <div class="muted">Owner Telegram: <a class="link" href="https://t.me/Fhrrlln" target="_blank">@Fhrrlln</a></div>
+        </div>
+
+        <footer class="note">© Anam Store — All prices as listed. Rp in Indonesian format.</footer>
+      </aside>
+    </div>
+  </div>
+
+<script>
+/* ===== DATA (HARGA EXACT AS PROVIDED) =====
+   I preserve the textual price labels exactly as in your list.
+   Each item has: id, category, label (exact display), price (numeric in IDR for convenience).
+*/
+
+const DATA = [
+  // PROMOTE (exact strings)
+  { id:'promote_normal', cat:'promote', label:'NORMAL = Rp 3.000', price:3000 },
+  { id:'promote_skip1', cat:'promote', label:'SKIP I = Rp 6.000', price:6000 },
+  { id:'promote_skip2', cat:'promote', label:'SKIP II = Rp 9.000', price:9000 },
+  { id:'promote_mskip', cat:'promote', label:'MSKIP = Rp 12.000', price:12000 },
+  { id:'promote_skip_server', cat:'promote', label:'[SKIP 1 SERVER = +3.000]', price:3000 },
+
+  // SUNtIK SOSMED (mursun + instagram packages etc)
+  { id:'suntik_mursun', cat:'suntik', label:'Harga mursun 10k', price:10000 },
+
+  // INSTAGRAM FOLLOWERS (as listed)
+  { id:'ig_100', cat:'suntik', label:'100 Followers = Rp 5.000', price:5000 },
+  { id:'ig_200', cat:'suntik', label:'200 Followers = Rp 10.000', price:10000 },
+  { id:'ig_300', cat:'suntik', label:'300 Followers = Rp 15.000', price:15000 },
+  { id:'ig_400', cat:'suntik', label:'400 Followers = Rp 20.000', price:20000 },
+  { id:'ig_500', cat:'suntik', label:'500 Followers = Rp 25.000', price:25000 },
+  { id:'ig_1000', cat:'suntik', label:'1000 Followers = Rp 30.000', price:30000 },
+
+  // TIKTOK FOLLOWERS
+  { id:'tt_100', cat:'suntik', label:'TikTok 100 Followers = Rp 5.000', price:5000 },
+  { id:'tt_200', cat:'suntik', label:'TikTok 200 Followers = Rp 9.000', price:9000 },
+  { id:'tt_300', cat:'suntik', label:'TikTok 300 Followers = Rp 13.000', price:13000 },
+  { id:'tt_400', cat:'suntik', label:'TikTok 400 Followers = Rp 17.000', price:17000 },
+  { id:'tt_500', cat:'suntik', label:'TikTok 500 Followers = Rp 21.000', price:21000 },
+  { id:'tt_1000', cat:'suntik', label:'TikTok 1000 Followers = Rp 27.000', price:27000 },
+
+  // TIKTOK LIKES
+  { id:'tlik_100', cat:'suntik', label:'TikTok 100 Like = Rp 500', price:500 },
+  { id:'tlik_200', cat:'suntik', label:'TikTok 200 Like = Rp 1.000', price:1000 },
+  { id:'tlik_300', cat:'suntik', label:'TikTok 300 Like = Rp 2.000', price:2000 },
+  { id:'tlik_400', cat:'suntik', label:'TikTok 400 Like = Rp 3.000', price:3000 },
+  { id:'tlik_500', cat:'suntik', label:'TikTok 500 Like = Rp 4.000', price:4000 },
+  { id:'tlik_1000', cat:'suntik', label:'TikTok 1000 Like = Rp 7.000', price:7000 },
+
+  // TIKTOK VIEWS
+  { id:'tview_100k', cat:'suntik', label:'TikTok 100.000 view = Rp 3.000', price:3000 },
+  { id:'tview_200k', cat:'suntik', label:'TikTok 200.000 view = Rp 6.000', price:6000 },
+  { id:'tview_300k', cat:'suntik', label:'TikTok 300.000 view = Rp 9.000', price:9000 },
+  { id:'tview_400k', cat:'suntik', label:'TikTok 400.000 view = Rp 12.000', price:12000 },
+  { id:'tview_500k', cat:'suntik', label:'TikTok 500.000 view = Rp 15.000', price:15000 },
+  { id:'tview_600k', cat:'suntik', label:'TikTok 600.000 view = Rp 18.000', price:18000 },
+
+  // PENGIKUT SALURAN
+  { id:'ps_100', cat:'suntik', label:'Pengikut Saluran 100 = Rp 4.000', price:4000 },
+  { id:'ps_200', cat:'suntik', label:'Pengikut Saluran 200 = Rp 8.000', price:8000 },
+  { id:'ps_300', cat:'suntik', label:'Pengikut Saluran 300 = Rp 12.000', price:12000 },
+  { id:'ps_400', cat:'suntik', label:'Pengikut Saluran 400 = Rp 16.000', price:16000 },
+  { id:'ps_500', cat:'suntik', label:'Pengikut Saluran 500 = Rp 20.000', price:20000 },
+  { id:'ps_1000', cat:'suntik', label:'Pengikut Saluran 1000 = Rp 40.000', price:40000 },
+
+  // PANEL ptyrodactyl (user wrote "1gb : 1k" etc)
+  { id:'panel_1', cat:'panel', label:'1gb : 1k', price:1000 },
+  { id:'panel_2', cat:'panel', label:'2gb : 2k', price:2000 },
+  { id:'panel_3', cat:'panel', label:'3gb : 3k', price:3000 },
+  { id:'panel_4', cat:'panel', label:'4gb : 4k', price:4000 },
+  { id:'panel_5', cat:'panel', label:'5gb : 5k', price:5000 },
+  { id:'panel_6', cat:'panel', label:'6gb : 6k', price:6000 },
+  { id:'panel_7', cat:'panel', label:'7gb : 7k', price:7000 },
+  { id:'panel_8', cat:'panel', label:'8gb : 8k', price:8000 },
+  { id:'panel_9', cat:'panel', label:'9gb : 9k', price:9000 },
+  { id:'panel_unli', cat:'panel', label:'Unli : 10k', price:10000 }
+];
+
+/* ===== UI population ===== */
+function mkItemElement(item){
+  const el = document.createElement('div');
+  el.className = 'item';
+  el.innerHTML = `
+    <div class="left">
+      <div class="name">${escapeHtml(item.label)}</div>
+      <div class="sub muted">Kategori: ${item.cat.toUpperCase()}</div>
+    </div>
+    <div class="right">
+      <div class="price">${formatRp(item.price)}</div>
+      <button class="buy-btn" onclick="buyItem('${item.id}')">Beli</button>
+    </div>
+  `;
+  return el;
+}
+
+function populate(){
+  const promoteBox = document.getElementById('promoteItems');
+  const suntikBox = document.getElementById('suntikItems');
+  const panelBox = document.getElementById('panelItems');
+  DATA.forEach(item=>{
+    const node = mkItemElement(item);
+    if(item.cat === 'promote') promoteBox.appendChild(node);
+    if(item.cat === 'suntik') suntikBox.appendChild(node);
+    if(item.cat === 'panel') panelBox.appendChild(node);
+  });
+}
+populate();
+
+/* ===== store switching ===== */
+function showStore(id){
+  document.querySelectorAll('.store').forEach(s => s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+
+/* ===== buy flow ===== */
+let currentOrder = null;
+function buyItem(itemId){
+  const item = DATA.find(d=>d.id===itemId);
+  if(!item) return;
+  currentOrder = item;
+  // update sidebar order detail
+  const od = document.getElementById('orderDetail');
+  od.innerHTML = `<div><b>${escapeHtml(item.label)}</b></div>
+                  <div class="muted">Kategori: ${item.cat}</div>
+                  <div style="margin-top:8px"><b>Harga: ${formatRp(item.price)}</b></div>`;
+  // scroll to sidebar (mobile)
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ===== confirm buttons ===== */
+const TELE_LINK = 'https://t.me/Fhrrlln';
+const WA_BASE = 'https://wa.me/+6282121351723';
+
+document.getElementById('confirmTelegram').addEventListener('click', ()=>{
+  if(!currentOrder){
+    alert('Pilih produk dulu sebelum konfirmasi.');
+    return;
+  }
+  // open telegram (no prefill text possible universally) — open chat
+  window.open(TELE_LINK, '_blank');
+});
+
+document.getElementById('confirmWhatsapp').addEventListener('click', ()=>{
+  if(!currentOrder){
+    alert('Pilih produk dulu sebelum konfirmasi.');
+    return;
+  }
+  const text = `Halo, saya ingin konfirmasi pesanan:\n- Produk: ${currentOrder.label}\n- Kategori: ${currentOrder.cat}\n- Harga: ${formatRp(currentOrder.price)}\n\nNama: \nNo HP: \nLink/USN (jika perlu):`;
+  const url = WA_BASE + '?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+});
+
+/* ===== theme toggle ===== */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', ()=>{
+  const root = document.body;
+  const current = root.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+});
+
+/* ===== helpers ===== */
+function formatRp(n){
+  if(!n && n!==0) return '-';
+  // show as "Rp X" with thousands separator, but keep small numbers exact
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+</script>
+</body>
+</html>
